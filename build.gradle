@@ -12,7 +12,7 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
-    id 'org.springframework.boot' version '2.0.5.RELEASE'
+    id 'org.springframework.boot' version '2.6.3'
 }
 
 bootJar {
@@ -30,8 +30,8 @@ targetCompatibility = 1.8
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     implementation 'com.google.guava:guava:26.0-jre'
-    compile 'org.springframework.boot:spring-boot-starter-web:2.1.8.RELEASE'
-    testCompile('org.springframework.boot:spring-boot-starter-test:2.1.8.RELEASE')
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.6.3'
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.6.3')
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
