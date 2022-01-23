@@ -11,6 +11,6 @@ public class IngredientControllerTest {
 
         String result = subject.get();
 
-        Assert.assertEquals("here's an ingredient!", result);
+        Assert.assertEquals("here's an ingredient, from inside docker!", result);
     }
 }

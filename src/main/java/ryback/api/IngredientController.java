@@ -9,6 +9,6 @@ public class IngredientController {
 
     @RequestMapping("")
     public String get(){
-        return "here's an ingredient!";
+        return "here's an ingredient, from inside docker!";
     }
 }
