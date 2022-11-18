@@ -1,6 +1,16 @@
 package ryback.api;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.UUID;
+
+@Entity
 public class Recipe {
+
+    @Id
+    @GeneratedValue
+    private UUID id;
 
     private String name;
     private String description;
