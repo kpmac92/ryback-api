@@ -25,6 +25,8 @@ repositories {
 }
 
 dependencies {
+    implementation "org.flywaydb:flyway-core:9.14.1"
+
     // This dependency is found on compile classpath of this component and consumers.
     implementation 'com.google.guava:guava:26.0-jre'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.7.5'
