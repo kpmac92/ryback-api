@@ -2,13 +2,11 @@ package ryback.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/recipes")
@@ -21,18 +19,21 @@ public class RecipeController {
     @CrossOrigin(origins = "http://localhost:1234")
     public List<Recipe> get() {
         List<Recipe> recipes = new ArrayList<>();
-        recipes.add(new Recipe("Pancakes",
-                "The classic wholesome breakfast. Serve with butter, syrup, chocolate chips, blueberries, or whatever else you want!",
-                30));
-        recipes.add(new Recipe("Creamy Cajun Pasta", "it's creamy, it's cajun, it's pasta.", 60));
-        recipes.add(new Recipe("Honey Sesame Chicken", "tasty asian chicken with rice and veggies", 90));
+        recipeRepository.findAll().forEach(recipes::add);
         return recipes;
     }
 
-    @RequestMapping(value="create", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="create", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.POST)
     @CrossOrigin(origins = "http://localhost:1234")
     public Recipe create(@RequestBody Recipe recipe) {
         recipeRepository.save(recipe);
         return recipe;
+    }
+
+    @RequestMapping(value="delete", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
+    @CrossOrigin(origins = "http://localhost:1234")
+    public boolean delete(@RequestBody UUID recipeId) {
+        recipeRepository.deleteById(recipeId);
+        return true;
     }
 }
