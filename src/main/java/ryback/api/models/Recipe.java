@@ -1,9 +1,7 @@
-package ryback.api;
+package ryback.api.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,6 +15,10 @@ public class Recipe {
     private String name;
     private String description;
     private Integer time;
+
+    @OneToMany(mappedBy = "recipe",
+            targetEntity = RecipeIngredient.class)
+    private List<RecipeIngredient> recipeIngredients;
 
     public Recipe() {
     }
@@ -52,5 +54,13 @@ public class Recipe {
 
     public void setTime(Integer time) {
         this.time = time;
+    }
+
+    public List<RecipeIngredient> getRecipeIngredients() {
+        return recipeIngredients;
+    }
+
+    public void setRecipeIngredients(List<RecipeIngredient> recipeIngredients) {
+        this.recipeIngredients = recipeIngredients;
     }
 }

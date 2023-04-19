@@ -32,6 +32,7 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.7.5'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.7.5'
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.0'
+    implementation group: 'org.apache.commons', name: 'commons-numbers-fraction', version: '1.1'
     implementation 'javax.xml.bind:jaxb-api:2.3.0'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test:2.6.3')
