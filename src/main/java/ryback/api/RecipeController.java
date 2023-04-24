@@ -5,8 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ryback.api.data.IngredientRepository;
+import ryback.api.data.RecipeIngredientRepository;
 import ryback.api.data.RecipeRepository;
+import ryback.api.models.Ingredient;
 import ryback.api.models.Recipe;
+import ryback.api.models.RecipeIngredient;
+import ryback.api.models.RecipeIngredientId;
+import ryback.api.rest.RecipeIngredientRequestObject;
+import ryback.api.rest.RecipeRequestObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +25,13 @@ import java.util.UUID;
 public class RecipeController {
 
     @Autowired
-    RecipeRepository recipeRepository;
+    private RecipeRepository recipeRepository;
+
+    @Autowired
+    private IngredientRepository ingredientRepository;
+
+    @Autowired
+    private RecipeIngredientRepository recipeIngredientRepository;
 
     @RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     @CrossOrigin(origins = "http://localhost:1234")
@@ -30,10 +43,10 @@ public class RecipeController {
 
     @RequestMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     @CrossOrigin(origins = "http://localhost:1234")
-    public Recipe get(@PathVariable UUID id) {
+    public RecipeRequestObject get(@PathVariable UUID id) {
         Optional<Recipe> recipe = recipeRepository.findById(id);
         if (recipe.isPresent()) {
-            return recipe.get();
+            return new RecipeRequestObject(recipe.get(), true);
         } else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
         }
@@ -41,8 +54,11 @@ public class RecipeController {
 
     @RequestMapping(value="create", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.POST)
     @CrossOrigin(origins = "http://localhost:1234")
-    public Recipe create(@RequestBody Recipe recipe) {
-        recipeRepository.save(recipe);
+    public Recipe create(@RequestBody RecipeRequestObject recipeRequest) {
+        Recipe recipe = recipeRepository.save(new Recipe(recipeRequest));
+
+        recipeRequest.getRecipeIngredients().forEach(ingredient -> saveRecipeIngredient(ingredient, recipe));
+
         return recipe;
     }
 
@@ -51,5 +67,34 @@ public class RecipeController {
     public boolean delete(@RequestBody UUID recipeId) {
         recipeRepository.deleteById(recipeId);
         return true;
+    }
+
+    private void saveRecipeIngredient(RecipeIngredientRequestObject requestObject, Recipe recipe) {
+        Ingredient ingredient;
+        System.out.println(requestObject);
+
+        if(requestObject.getIngredientId() != null) {
+            ingredient = ingredientRepository.findById(requestObject.getIngredientId()).get();
+            if(recipeIngredientRepository.findById(new RecipeIngredientId(recipe.getId(),
+                    requestObject.getIngredientId())).isPresent()) {
+                //todo: update existing
+                return;
+            }
+
+        } else {
+            Optional<Ingredient> searchResult = ingredientRepository.findByName(
+                    requestObject.getIngredientName().trim().toLowerCase());
+
+            ingredient = searchResult.orElseGet(() -> ingredientRepository.save(
+                    new Ingredient(requestObject.getIngredientName().trim().toLowerCase(), requestObject.getDiscrete())));
+        }
+
+        System.out.println(ingredient.getId());
+        System.out.println(recipe.getId());
+        RecipeIngredient recipeIngredientModel =
+                new RecipeIngredient(requestObject.getPrimary(), recipe, ingredient,
+                        requestObject.getAmountNumerator(), requestObject.getAmountDenominator());
+        System.out.println(recipeIngredientModel.getIsPrimary());
+        recipeIngredientRepository.save(recipeIngredientModel);
     }
 }

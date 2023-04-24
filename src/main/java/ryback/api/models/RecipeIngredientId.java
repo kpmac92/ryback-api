@@ -1,12 +1,17 @@
 package ryback.api.models;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
+@Embeddable
 public class RecipeIngredientId implements Serializable {
-    private UUID recipeId;
-    private UUID ingredientId;
+    @Column(name="recipeId")
+    UUID recipeId;
+    @Column(name="ingredientId")
+    UUID ingredientId;
 
     public RecipeIngredientId() {
     }

@@ -1,35 +1,40 @@
 package ryback.api.models;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Table(name="recipeIngredients")
-@IdClass(RecipeIngredientId.class)
 public class RecipeIngredient {
-
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name="numerator", column=@Column(name = "amountNumerator")),
             @AttributeOverride(name="denominator", column = @Column(name="amountDenominator"))
     })
     private IngredientAmount amount;
-    private Boolean primary;
+    private Boolean isPrimary;
     @ManyToOne
+    @MapsId("recipeId")
     @JoinColumn(name="recipeId")
-    private Recipe recipe;
+    Recipe recipe;
     @ManyToOne
+    @MapsId("ingredientId")
     @JoinColumn(name="ingredientId")
-    private Ingredient ingredient;
-
-    @Id
-    @Column(name="recipeId", insertable = false, updatable = false)
-    private UUID recipeId;
-    @Id
-    @Column(name="ingredientId", insertable = false, updatable = false)
-    private UUID ingredientId;
+    Ingredient ingredient;
+//todo: just use a separate uuid for a pk
+    @EmbeddedId
+    RecipeIngredientId recipeIngredientId;
 
     public RecipeIngredient() {
+        this.recipeIngredientId = new RecipeIngredientId();
+    }
+
+    public RecipeIngredient(Boolean isPrimary, Recipe recipe, Ingredient ingredient,
+                            Integer amountNumerator, Integer amountDenominator) {
+        this.isPrimary = isPrimary;
+        this.recipe = recipe;
+        this.ingredient = ingredient;
+        this.amount = new IngredientAmount(amountNumerator, amountDenominator);
+        this.recipeIngredientId = new RecipeIngredientId();
     }
 
     public IngredientAmount getAmount() {
@@ -40,12 +45,12 @@ public class RecipeIngredient {
         this.amount = amount;
     }
 
-    public Boolean getPrimary() {
-        return primary;
+    public Boolean getIsPrimary() {
+        return isPrimary;
     }
 
-    public void setPrimary(Boolean primary) {
-        this.primary = primary;
+    public void setIsPrimary(Boolean isPrimary) {
+        this.isPrimary = isPrimary;
     }
 
     public Recipe getRecipe() {
@@ -62,5 +67,13 @@ public class RecipeIngredient {
 
     public void setIngredient(Ingredient ingredient) {
         this.ingredient = ingredient;
+    }
+
+    public RecipeIngredientId getRecipeIngredientId() {
+        return recipeIngredientId;
+    }
+
+    public void setRecipeIngredientId(RecipeIngredientId recipeIngredientId) {
+        this.recipeIngredientId = recipeIngredientId;
     }
 }

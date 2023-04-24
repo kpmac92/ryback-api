@@ -1,7 +1,7 @@
 create table ingredients (
     id UUID default gen_random_uuid() primary key,
     name varchar(100),
-    discrete boolean
+    isDiscrete boolean
 );
 
 create table recipeIngredients (
@@ -9,6 +9,6 @@ create table recipeIngredients (
     ingredientId UUID references ingredients(id),
     amountNumerator integer,
     amountDenominator integer,
-    "primary" boolean,
+    isPrimary boolean,
     primary key(recipeId, ingredientId)
 )

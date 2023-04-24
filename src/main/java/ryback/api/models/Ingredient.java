@@ -1,9 +1,7 @@
 package ryback.api.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -14,9 +12,17 @@ public class Ingredient {
     @GeneratedValue
     private UUID id;
     private String name;
-    private Boolean discrete;
+    private Boolean isDiscrete;
+    @OneToMany(mappedBy = "ingredient",
+            targetEntity = RecipeIngredient.class)
+    private List<RecipeIngredient> recipeIngredients;
 
     public Ingredient() {
+    }
+
+    public Ingredient(String name, Boolean isDiscrete) {
+        this.name = name;
+        this.isDiscrete = isDiscrete;
     }
 
     public UUID getId() {
@@ -31,11 +37,11 @@ public class Ingredient {
         this.name = name;
     }
 
-    public Boolean getDiscrete() {
-        return discrete;
+    public Boolean getIsDiscrete() {
+        return isDiscrete;
     }
 
-    public void setDiscrete(Boolean discrete) {
-        this.discrete = discrete;
+    public void setIsDiscrete(Boolean isDiscrete) {
+        this.isDiscrete = isDiscrete;
     }
 }

@@ -1,5 +1,8 @@
 package ryback.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import ryback.api.rest.RecipeRequestObject;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
@@ -18,12 +21,21 @@ public class Recipe {
 
     @OneToMany(mappedBy = "recipe",
             targetEntity = RecipeIngredient.class)
+    @JsonIgnore
     private List<RecipeIngredient> recipeIngredients;
 
     public Recipe() {
     }
 
-    public Recipe(String name, String description, Integer time) {
+    public Recipe(RecipeRequestObject recipeRequestObject) {
+        this.id = recipeRequestObject.getId();
+        this.name = recipeRequestObject.getName();
+        this.description = recipeRequestObject.getDescription();
+        this.time = recipeRequestObject.getTime();
+    }
+
+    public Recipe(UUID id, String name, String description, Integer time) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.time = time;

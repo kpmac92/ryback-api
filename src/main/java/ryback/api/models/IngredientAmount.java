@@ -15,6 +15,11 @@ public class IngredientAmount {
     public IngredientAmount() {
     }
 
+    public IngredientAmount(Integer numerator, Integer denominator) {
+        this.numerator = numerator;
+        this.denominator = denominator;
+    }
+
     public Integer getNumerator() {
         return numerator;
     }
