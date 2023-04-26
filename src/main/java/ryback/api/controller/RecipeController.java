@@ -1,4 +1,4 @@
-package ryback.api;
+package ryback.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

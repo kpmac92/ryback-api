@@ -2,6 +2,7 @@ package ryback.api;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ryback.api.controller.IngredientController;
 
 public class IngredientControllerTest {
 
