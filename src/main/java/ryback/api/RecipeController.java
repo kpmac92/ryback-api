@@ -71,30 +71,37 @@ public class RecipeController {
 
     private void saveRecipeIngredient(RecipeIngredientRequestObject requestObject, Recipe recipe) {
         Ingredient ingredient;
-        System.out.println(requestObject);
 
         if(requestObject.getIngredientId() != null) {
             ingredient = ingredientRepository.findById(requestObject.getIngredientId()).get();
-            if(recipeIngredientRepository.findById(new RecipeIngredientId(recipe.getId(),
-                    requestObject.getIngredientId())).isPresent()) {
-                //todo: update existing
+
+            Optional<RecipeIngredient> recipeIngredient = recipeIngredientRepository.findById(new RecipeIngredientId(recipe.getId(),
+                            requestObject.getIngredientId()));
+
+            if (recipeIngredient.isPresent()) {
+                updateRecipeIngredient(recipeIngredient.get(), requestObject);
                 return;
             }
 
         } else {
-            Optional<Ingredient> searchResult = ingredientRepository.findByName(
+            Optional<Ingredient> ingredientResult = ingredientRepository.findByName(
                     requestObject.getIngredientName().trim().toLowerCase());
 
-            ingredient = searchResult.orElseGet(() -> ingredientRepository.save(
+            ingredient = ingredientResult.orElseGet(() -> ingredientRepository.save(
                     new Ingredient(requestObject.getIngredientName().trim().toLowerCase(), requestObject.getDiscrete())));
         }
 
-        System.out.println(ingredient.getId());
-        System.out.println(recipe.getId());
         RecipeIngredient recipeIngredientModel =
                 new RecipeIngredient(requestObject.getPrimary(), recipe, ingredient,
                         requestObject.getAmountNumerator(), requestObject.getAmountDenominator());
-        System.out.println(recipeIngredientModel.getIsPrimary());
+
         recipeIngredientRepository.save(recipeIngredientModel);
+    }
+
+    private void updateRecipeIngredient(RecipeIngredient recipeIngredient, RecipeIngredientRequestObject requestObject) {
+        recipeIngredient.getAmount().setNumerator(requestObject.getAmountNumerator());
+        recipeIngredient.getAmount().setDenominator(requestObject.getAmountDenominator());
+        recipeIngredient.setIsPrimary(requestObject.getPrimary());
+        recipeIngredientRepository.save(recipeIngredient);
     }
 }

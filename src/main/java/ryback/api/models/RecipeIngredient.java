@@ -20,7 +20,7 @@ public class RecipeIngredient {
     @MapsId("ingredientId")
     @JoinColumn(name="ingredientId")
     Ingredient ingredient;
-//todo: just use a separate uuid for a pk
+
     @EmbeddedId
     RecipeIngredientId recipeIngredientId;
 
