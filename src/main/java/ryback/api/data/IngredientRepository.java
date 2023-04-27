@@ -1,7 +1,7 @@
 package ryback.api.data;
 
 import org.springframework.data.repository.CrudRepository;
-import ryback.api.models.Ingredient;
+import ryback.api.model.Ingredient;
 
 import java.util.Optional;
 import java.util.UUID;

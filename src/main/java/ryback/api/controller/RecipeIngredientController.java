@@ -5,11 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ryback.api.data.RecipeIngredientRepository;
-import ryback.api.models.RecipeIngredient;
-import ryback.api.models.RecipeIngredientId;
+import ryback.api.model.RecipeIngredient;
+import ryback.api.model.RecipeIngredientId;
 import ryback.api.rest.RecipeIngredientRequestObject;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/recipeIngredient")

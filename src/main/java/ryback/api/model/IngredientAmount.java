@@ -1,4 +1,4 @@
-package ryback.api.models;
+package ryback.api.model;
 
 import org.apache.commons.numbers.fraction.Fraction;
 

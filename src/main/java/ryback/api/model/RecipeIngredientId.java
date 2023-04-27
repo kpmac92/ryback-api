@@ -1,4 +1,4 @@
-package ryback.api.models;
+package ryback.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

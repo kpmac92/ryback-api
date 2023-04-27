@@ -8,12 +8,13 @@ import org.springframework.web.server.ResponseStatusException;
 import ryback.api.data.IngredientRepository;
 import ryback.api.data.RecipeIngredientRepository;
 import ryback.api.data.RecipeRepository;
-import ryback.api.models.Ingredient;
-import ryback.api.models.Recipe;
-import ryback.api.models.RecipeIngredient;
-import ryback.api.models.RecipeIngredientId;
+import ryback.api.model.Ingredient;
+import ryback.api.model.Recipe;
+import ryback.api.model.RecipeIngredient;
+import ryback.api.model.RecipeIngredientId;
 import ryback.api.rest.RecipeIngredientRequestObject;
 import ryback.api.rest.RecipeRequestObject;
+import ryback.api.service.RecipeService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,9 @@ public class RecipeController {
 
     @Autowired
     private RecipeIngredientRepository recipeIngredientRepository;
+
+    @Autowired
+    private RecipeService recipeService;
 
     @RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     @CrossOrigin(origins = "http://localhost:1234")
@@ -54,12 +58,10 @@ public class RecipeController {
 
     @RequestMapping(value="create", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.POST)
     @CrossOrigin(origins = "http://localhost:1234")
-    public Recipe create(@RequestBody RecipeRequestObject recipeRequest) {
-        Recipe recipe = recipeRepository.save(new Recipe(recipeRequest));
+    public RecipeRequestObject create(@RequestBody RecipeRequestObject recipeRequest) {
+        RecipeRequestObject savedRecipe = recipeService.saveRecipe(recipeRequest);
 
-        recipeRequest.getRecipeIngredients().forEach(ingredient -> saveRecipeIngredient(ingredient, recipe));
-
-        return recipe;
+        return savedRecipe;
     }
 
     @RequestMapping(value="delete", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
@@ -67,52 +69,5 @@ public class RecipeController {
     public boolean delete(@RequestBody UUID recipeId) {
         recipeRepository.deleteById(recipeId);
         return true;
-    }
-
-    private void saveRecipeIngredient(RecipeIngredientRequestObject requestObject, Recipe recipe) {
-        Ingredient ingredient;
-
-        if(requestObject.getIngredientId() != null) {
-            ingredient = ingredientRepository.findById(requestObject.getIngredientId()).get();
-
-            Optional<RecipeIngredient> recipeIngredient = recipeIngredientRepository.findById(new RecipeIngredientId(recipe.getId(),
-                            requestObject.getIngredientId()));
-
-            if (recipeIngredient.isPresent()) {
-                RecipeIngredient recipeIngredientModel = recipeIngredient.get();
-
-                if(recipeIngredientModel.getIngredient().getName().equals(requestObject.getIngredientName())) {
-                    updateRecipeIngredient(recipeIngredient.get(), requestObject);
-                    return;
-                } else {
-                    recipeIngredientRepository.delete(recipeIngredientModel);
-                    ingredient = findOrCreateIngredient(requestObject);
-                }
-            }
-
-        } else {
-            ingredient = findOrCreateIngredient(requestObject);
-        }
-
-        RecipeIngredient recipeIngredientModel =
-                new RecipeIngredient(requestObject.getPrimary(), recipe, ingredient,
-                        requestObject.getAmountNumerator(), requestObject.getAmountDenominator());
-
-        recipeIngredientRepository.save(recipeIngredientModel);
-    }
-
-    private void updateRecipeIngredient(RecipeIngredient recipeIngredient, RecipeIngredientRequestObject requestObject) {
-        recipeIngredient.getAmount().setNumerator(requestObject.getAmountNumerator());
-        recipeIngredient.getAmount().setDenominator(requestObject.getAmountDenominator());
-        recipeIngredient.setIsPrimary(requestObject.getPrimary());
-        recipeIngredientRepository.save(recipeIngredient);
-    }
-
-    private Ingredient findOrCreateIngredient(RecipeIngredientRequestObject requestObject) {
-        Optional<Ingredient> ingredientResult = ingredientRepository.findByName(
-                requestObject.getIngredientName().trim().toLowerCase());
-
-        return ingredientResult.orElseGet(() -> ingredientRepository.save(
-                new Ingredient(requestObject.getIngredientName().trim().toLowerCase(), requestObject.getDiscrete())));
     }
 }

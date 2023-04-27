@@ -1,6 +1,6 @@
 package ryback.api.rest;
 
-import ryback.api.models.Recipe;
+import ryback.api.model.Recipe;
 
 import java.util.List;
 import java.util.UUID;
