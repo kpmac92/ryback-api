@@ -79,16 +79,19 @@ public class RecipeController {
                             requestObject.getIngredientId()));
 
             if (recipeIngredient.isPresent()) {
-                updateRecipeIngredient(recipeIngredient.get(), requestObject);
-                return;
+                RecipeIngredient recipeIngredientModel = recipeIngredient.get();
+
+                if(recipeIngredientModel.getIngredient().getName().equals(requestObject.getIngredientName())) {
+                    updateRecipeIngredient(recipeIngredient.get(), requestObject);
+                    return;
+                } else {
+                    recipeIngredientRepository.delete(recipeIngredientModel);
+                    ingredient = findOrCreateIngredient(requestObject);
+                }
             }
 
         } else {
-            Optional<Ingredient> ingredientResult = ingredientRepository.findByName(
-                    requestObject.getIngredientName().trim().toLowerCase());
-
-            ingredient = ingredientResult.orElseGet(() -> ingredientRepository.save(
-                    new Ingredient(requestObject.getIngredientName().trim().toLowerCase(), requestObject.getDiscrete())));
+            ingredient = findOrCreateIngredient(requestObject);
         }
 
         RecipeIngredient recipeIngredientModel =
@@ -103,5 +106,13 @@ public class RecipeController {
         recipeIngredient.getAmount().setDenominator(requestObject.getAmountDenominator());
         recipeIngredient.setIsPrimary(requestObject.getPrimary());
         recipeIngredientRepository.save(recipeIngredient);
+    }
+
+    private Ingredient findOrCreateIngredient(RecipeIngredientRequestObject requestObject) {
+        Optional<Ingredient> ingredientResult = ingredientRepository.findByName(
+                requestObject.getIngredientName().trim().toLowerCase());
+
+        return ingredientResult.orElseGet(() -> ingredientRepository.save(
+                new Ingredient(requestObject.getIngredientName().trim().toLowerCase(), requestObject.getDiscrete())));
     }
 }
