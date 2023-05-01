@@ -3,10 +3,7 @@ package ryback.api.service;
 import org.hibernate.service.spi.InjectService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.internal.matchers.Any;
 import org.mockito.junit.MockitoJUnitRunner;
 import ryback.api.data.IngredientRepository;
@@ -21,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RecipeServiceTest {
@@ -37,8 +36,30 @@ public class RecipeServiceTest {
     @InjectMocks
     private RecipeService subject;
 
+    @Captor
+    private ArgumentCaptor<Ingredient> ingredientCaptor;
+
     @Test
     public void saveRecipeCreatesNewIngredientWhenNoneExist() {
+        RecipeRequestObject input = buildRecipeRequestObject();
+
+        Mockito.when(mockRecipeRepository.save(ArgumentMatchers.any()))
+                        .thenReturn(new Recipe());
+        Mockito.when(mockIngredientRepository.save(ArgumentMatchers.any()))
+                        .thenReturn(new Ingredient());
+
+        subject.saveRecipe(input);
+
+        Mockito.verify(mockIngredientRepository).save(ingredientCaptor.capture());
+        Ingredient savedIngredient = ingredientCaptor.getValue();
+
+        assertEquals("milk", savedIngredient.getName());
+        assertEquals(false, savedIngredient.getIsDiscrete());
+
+        //todo: capture and assert saved recipe and recipe ingredient
+    }
+
+    private static RecipeRequestObject buildRecipeRequestObject() {
         RecipeRequestObject input = new RecipeRequestObject();
         input.setName("pancakes");
         input.setDescription("A Description");
@@ -52,17 +73,7 @@ public class RecipeServiceTest {
         inputIngredient.setPrimary(true);
 
         input.setRecipeIngredients(List.of(inputIngredient));
-
-        //todo: remove any matchers and assert db call params + return object
-        Mockito.when(mockIngredientRepository.findByName("Milk")).thenReturn(Optional.empty());
-        Mockito.when(mockRecipeRepository.save(ArgumentMatchers.any()))
-                        .thenReturn(new Recipe());
-        Mockito.when(mockIngredientRepository.save(ArgumentMatchers.any()))
-                        .thenReturn(new Ingredient());
-
-        subject.saveRecipe(input);
-
-        Mockito.verify(mockIngredientRepository).save(ArgumentMatchers.any());
+        return input;
     }
 
     @Test
