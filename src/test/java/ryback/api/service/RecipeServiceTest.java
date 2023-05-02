@@ -113,6 +113,7 @@ public class RecipeServiceTest {
         RecipeRequestObject input = buildRecipeRequestObject();
         input.setId(recipeId);
         input.getRecipeIngredients().get(0).setIngredientId(ingredientId);
+        input.getRecipeIngredients().get(0).setAmountNumerator(3);
 
         Ingredient existingIngredient = new Ingredient();
         existingIngredient.setId(ingredientId);
@@ -140,13 +141,55 @@ public class RecipeServiceTest {
         assertEquals(input.getId(), savedRecipeIngredient.getRecipe().getId());
         assertEquals(input.getRecipeIngredients().get(0).getIngredientId(), savedRecipeIngredient.getIngredient().getId());
         assertEquals(Integer.valueOf(2), savedRecipeIngredient.getAmount().getDenominator());
-        assertEquals(Integer.valueOf(1), savedRecipeIngredient.getAmount().getNumerator());
+        assertEquals(Integer.valueOf(3), savedRecipeIngredient.getAmount().getNumerator());
         assertEquals(true, savedRecipeIngredient.getIsPrimary());
     }
 
     @Test
     public void saveRecipeCreatesNewRecipeIngredientWhenNameChanges() {
-        //todo
+        UUID recipeId = UUID.randomUUID();
+        UUID ingredientId = UUID.randomUUID();
+        RecipeRequestObject input = buildRecipeRequestObject();
+        input.setId(recipeId);
+        input.getRecipeIngredients().get(0).setIngredientId(ingredientId);
+
+        Ingredient existingIngredient = new Ingredient();
+        existingIngredient.setId(ingredientId);
+        existingIngredient.setName("eggs");
+
+        Ingredient newIngredient = new Ingredient();
+        newIngredient.setId(UUID.randomUUID());
+
+        Recipe existingRecipe = new Recipe();
+        existingRecipe.setId(recipeId);
+
+        RecipeIngredient existingRecipeIngredient = new RecipeIngredient();
+        existingRecipeIngredient.setIngredient(existingIngredient);
+        existingRecipeIngredient.setRecipe(existingRecipe);
+        existingRecipeIngredient.setAmount(new IngredientAmount());
+
+        Mockito.when(mockRecipeRepository.save(ArgumentMatchers.any())).thenReturn(existingRecipe);
+        Mockito.when(mockRecipeIngredientRepository.findById(ArgumentMatchers.any()))
+                .thenReturn(Optional.of(existingRecipeIngredient));
+        Mockito.when(mockIngredientRepository.findById(ArgumentMatchers.any()))
+                .thenReturn(Optional.of(existingIngredient));
+        Mockito.when(mockIngredientRepository.save(ArgumentMatchers.any()))
+                .thenReturn(newIngredient);
+
+        subject.saveRecipe(input);
+
+        Mockito.verify(mockRecipeIngredientRepository).delete(recipeIngredientCaptor.capture());
+        RecipeIngredient deletedRecipeIngredient = recipeIngredientCaptor.getValue();
+        Mockito.verify(mockRecipeIngredientRepository).save(recipeIngredientCaptor.capture());
+        Mockito.verify(mockIngredientRepository).save(ingredientCaptor.capture());
+
+        RecipeIngredient savedRecipeIngredient = recipeIngredientCaptor.getValue();
+        Ingredient savedIngredient = ingredientCaptor.getValue();
+
+        assertEquals(input.getRecipeIngredients().get(0).getIngredientId(), deletedRecipeIngredient.getIngredient().getId());
+
+        assertEquals(input.getId(), savedRecipeIngredient.getRecipe().getId());
+        assertEquals(newIngredient.getId(), savedRecipeIngredient.getIngredient().getId());
     }
     private static RecipeRequestObject buildRecipeRequestObject() {
         RecipeRequestObject input = new RecipeRequestObject();
