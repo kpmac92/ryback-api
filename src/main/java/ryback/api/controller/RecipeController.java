@@ -56,15 +56,13 @@ public class RecipeController {
         }
     }
 
-    @RequestMapping(value="create", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.POST)
+    @RequestMapping(value="", produces = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.POST)
     @CrossOrigin(origins = "http://localhost:1234")
-    public RecipeRequestObject create(@RequestBody RecipeRequestObject recipeRequest) {
-        RecipeRequestObject savedRecipe = recipeService.saveRecipe(recipeRequest);
-
-        return savedRecipe;
+    public RecipeRequestObject post(@RequestBody RecipeRequestObject recipeRequest) {
+        return recipeService.saveRecipe(recipeRequest);
     }
 
-    @RequestMapping(value="delete", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
+    @RequestMapping(value="", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
     @CrossOrigin(origins = "http://localhost:1234")
     public boolean delete(@RequestBody UUID recipeId) {
         recipeRepository.deleteById(recipeId);

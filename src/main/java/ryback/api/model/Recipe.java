@@ -20,7 +20,7 @@ public class Recipe {
     private Integer time;
 
     @OneToMany(mappedBy = "recipe",
-            targetEntity = RecipeIngredient.class)
+            targetEntity = RecipeIngredient.class, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<RecipeIngredient> recipeIngredients;
 
