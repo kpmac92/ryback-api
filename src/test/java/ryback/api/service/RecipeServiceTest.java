@@ -10,6 +10,7 @@ import ryback.api.data.IngredientRepository;
 import ryback.api.data.RecipeIngredientRepository;
 import ryback.api.data.RecipeRepository;
 import ryback.api.model.Ingredient;
+import ryback.api.model.IngredientAmount;
 import ryback.api.model.Recipe;
 import ryback.api.model.RecipeIngredient;
 import ryback.api.rest.RecipeIngredientRequestObject;
@@ -105,16 +106,47 @@ public class RecipeServiceTest {
         assertEquals(returnedIngredient.getId(), savedRecipeIngredient.getIngredient().getId());
     }
 
-    //todo: add test cases for update
-
     @Test
     public void saveRecipeUpdatesExistingRecipeIngredient(){
+        UUID recipeId = UUID.randomUUID();
+        UUID ingredientId = UUID.randomUUID();
+        RecipeRequestObject input = buildRecipeRequestObject();
+        input.setId(recipeId);
+        input.getRecipeIngredients().get(0).setIngredientId(ingredientId);
 
+        Ingredient existingIngredient = new Ingredient();
+        existingIngredient.setId(ingredientId);
+        existingIngredient.setName("milk");
+
+        Recipe existingRecipe = new Recipe();
+        existingRecipe.setId(recipeId);
+
+        RecipeIngredient existingRecipeIngredient = new RecipeIngredient();
+        existingRecipeIngredient.setIngredient(existingIngredient);
+        existingRecipeIngredient.setRecipe(existingRecipe);
+        existingRecipeIngredient.setAmount(new IngredientAmount());
+
+        Mockito.when(mockRecipeRepository.save(ArgumentMatchers.any())).thenReturn(existingRecipe);
+        Mockito.when(mockRecipeIngredientRepository.findById(ArgumentMatchers.any()))
+                        .thenReturn(Optional.of(existingRecipeIngredient));
+        Mockito.when(mockIngredientRepository.findById(ArgumentMatchers.any()))
+                        .thenReturn(Optional.of(existingIngredient));
+
+        subject.saveRecipe(input);
+
+        Mockito.verify(mockRecipeIngredientRepository).save(recipeIngredientCaptor.capture());
+
+        RecipeIngredient savedRecipeIngredient = recipeIngredientCaptor.getValue();
+        assertEquals(input.getId(), savedRecipeIngredient.getRecipe().getId());
+        assertEquals(input.getRecipeIngredients().get(0).getIngredientId(), savedRecipeIngredient.getIngredient().getId());
+        assertEquals(Integer.valueOf(2), savedRecipeIngredient.getAmount().getDenominator());
+        assertEquals(Integer.valueOf(1), savedRecipeIngredient.getAmount().getNumerator());
+        assertEquals(true, savedRecipeIngredient.getIsPrimary());
     }
 
     @Test
     public void saveRecipeCreatesNewRecipeIngredientWhenNameChanges() {
-
+        //todo
     }
     private static RecipeRequestObject buildRecipeRequestObject() {
         RecipeRequestObject input = new RecipeRequestObject();

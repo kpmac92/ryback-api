@@ -43,7 +43,7 @@ public class RecipeService {
             if (recipeIngredient.isPresent()) {
                 RecipeIngredient recipeIngredientModel = recipeIngredient.get();
 
-                if(recipeIngredientModel.getIngredient().getName().equals(requestObject.getIngredientName())) {
+                if(recipeIngredientModel.getIngredient().getName().equals(requestObject.getIngredientName().trim().toLowerCase())) {
                     updateRecipeIngredient(recipeIngredient.get(), requestObject);
                     return;
                 } else {
